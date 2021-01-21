@@ -1,0 +1,45 @@
+JSON Web Token - JWT
+
+-Way for two parties to communicate securely
+-Used for Authorization
+-HTTP is Stateless protocol
+-Server remembers users in a sessions using Tokens
+	-Session Tokens - Reference to a state on the server
+	-JSON Tokens - Value token contains the info itself
+	
+-Old way is to correspond token info in Cookies. Session info will be saved by server
+	-Interms of microservices, all services can't save the same state
+
+JWT allows servers to sign the info(JSON payload)as a Token and send it to the client.
+	-In Subsequent requests the client sends the whole JSON token with the request.
+	-Server understands the Token and allows the request
+Can be sent via cookies
+
+JWT Structure:
+	-Header.Payload.Signature
+	-Header and Payload are JSON objects encoded in Base64. Only for convenience
+	https://jwt.io/
+	-Header
+		-tells how this is signed
+		-has type and algorithm information ex: {"alg":"HS256","type":"JWT}
+	-Payload is the actual Json data
+	-Signature 
+		-It is not to encrypt or decrypt, but for validating the info
+		-It can only be calculated by the server, hence authentic.
+		-if the server can't match the signature of the request, it doesn't provide request access.
+		-The Signature's algorithm is the one mentioned in the header
+		-the algorithm is used with a secret key that only the server holds
+		-The Algorithm uses the encoded header and payload along with secret key to generate the signature part
+	The value in the JWT token is open, as the token only provides authorization
+
+Flow:	
+1. The Initial user Authentication is done by whatever mechanism the server implements.
+2. Only then the Server generates a JWT token(for future request authorizations) and provides it to the user.
+3. The client can store it in a local storage or in a cookies
+4. The user needs to send this JWT Token with future requests in its HTTP header
+5. In HTTP header: <"Authorization":"Bearer "+<JWT Token>>
+6. The server gets the new req with the JWT and splits it into header(decodes base64), payload(decodes base64) and signature
+7. Calculates the signature and tries to match it.
+
+JWT's data is open to all, so JWT transmission should be protected, as someone else can use the exact same JWT to communicate with the server.
+Server can maintain blacklisted JWTs
