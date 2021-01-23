@@ -43,3 +43,25 @@ Flow:
 
 JWT's data is open to all, so JWT transmission should be protected, as someone else can use the exact same JWT to communicate with the server.
 Server can maintain blacklisted JWTs
+
+Implementation:
+Add jjwt and jaxb dependencies
+Create jwt Util to generate and verfiy JWT tokens, extract claims and other details from the tokens
+Create Rest end point accepts creds and authenticates the user and generates + returns the JWT
+	-Post Method that gets AuthenticationRequest bean we created(has username and password)
+	-uses Spring's AuthenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+	-throws BadCredentials exception on auth failure
+	-on success, load the UserDetails by userDetailsService.loadUserByUsername
+	-Use the jwtutil's generateToken method to generate new token
+	-return responseEntity OK with the AuthenticationResponse(user created bean) with the jwt
+In the SecurityConfig Class override authenticationManagerBean with default impl and override the cofigure for Httpsecurity to allow any request for /authentic endpoint.
+	-return responseEntity OK with the AuthenticationResponse(user created bean) with the jwt
+	
+Subsequent request authorization:
+	-Configuring project to accept request with header having Authorization:
+	-Extract jwt token from header
+	-Validate and set it in execution Context
+	-Intercept Request by creating a custom filter by extending existing one
+	-make the http based configuration stateless
+	-add the newly created filter using httpSecurity.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
